@@ -42,6 +42,11 @@ namespace bot {
 
         void skills() {
             bot::motors::lower.spin(vex::forward, 100, vex::percent);
+            dt.drive(500, 2000, 50, 0);
+            dt.drive(800, 3000, 80, 0);
+            dt.drive(-300, 800, 20, 0);
+            return;
+            bot::motors::lower.spin(vex::forward, 100, vex::percent);
             bot::pistons::match_load_piston.set(true);
             bot::pistons::arm_piston.set(true);
             dt.drive(450, 1000, 100, 0);

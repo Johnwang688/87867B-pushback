@@ -4,11 +4,11 @@
 constexpr double PI = 3.14159265358979323846;
 
 // PID constants
-constexpr double DRIVE_KP = 0.18;
+constexpr double DRIVE_KP = 0.15;
 constexpr double DRIVE_KI = 0.01;
 constexpr double DRIVE_KD = 0.001;
 
-constexpr double TURN_KP = 0.45;
+constexpr double TURN_KP = 0.40;
 constexpr double TURN_KI = 0.0;
 constexpr double TURN_KD = 0.03;
 
@@ -21,8 +21,8 @@ constexpr double MAX_OUTPUT = 100.0;
 constexpr double DT = 0.02; // seconds 
 
 // pure pursuit constants
-constexpr double HEADING_KP = 1.35;
-constexpr double HEADING_KI = 0.001;
+constexpr double HEADING_KP = 1.25;
+constexpr double HEADING_KI = 0.05;
 constexpr double HEADING_KD = 0.02;
 
 
