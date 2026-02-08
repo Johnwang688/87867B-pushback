@@ -4,9 +4,9 @@
 constexpr double PI = 3.14159265358979323846;
 
 // PID constants
-constexpr double DRIVE_KP = 0.15;
+constexpr double DRIVE_KP = 0.20;
 constexpr double DRIVE_KI = 0.01;
-constexpr double DRIVE_KD = 0.001;
+constexpr double DRIVE_KD = 0.02;
 
 constexpr double TURN_KP = 0.40;
 constexpr double TURN_KI = 0.0;

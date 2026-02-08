@@ -29,8 +29,8 @@ void Drivetrain::tank_drive(double left_speed, double right_speed) {
 void Drivetrain::arcade_drive(double fwd, double turn) {
     fwd = math::clamp(fwd, -100, 100);
     turn = math::clamp(turn, -100, 100);
-    double left_speed = fwd + turn;
-    double right_speed = fwd - turn;
+    double left_speed = math::clamp(fwd + turn, -100, 100);
+    double right_speed = math::clamp(fwd - turn, -100, 100);
     tank_drive(left_speed, right_speed);
 }
 
@@ -152,6 +152,50 @@ void Drivetrain::turn_to_heading(double heading, double timeout, double speed_li
     brake();
     _left_dt.stop();
     _right_dt.stop();
+    coast();
+}
+
+void Drivetrain::drive_arc(double radius, double angle, double timeout, double speed_limit, double lookahead) {
+    int settle_count = 0;
+    double start_time = bot::Brain.Timer.time(vex::msec);
+    double start_heading = _imu.heading(vex::degrees);
+    double target_heading = helpers::wrapTo180(start_heading + angle);
+    double direction = (radius * angle >= 0) ? 1.0 : -1.0;
+    double arc_length = std::abs(radius) * math::to_rad(std::abs(angle));
+    double target_encoder = direction * helpers::mmToDegrees(arc_length);
+    double heading_target, heading_error, heading_correction, current_pos, left_speed, right_speed, progress;
+    _left_dt.setPosition(0, vex::degrees);
+    _right_dt.setPosition(0, vex::degrees);
+    _heading_pid.reset();
+    _heading_pid.set_gains(2.0, 0.0, 1.0);
+    _drive_pid.reset();
+    lookahead = direction * std::abs(lookahead);
+    while (bot::Brain.Timer.time(vex::msec) - start_time < timeout) {
+        current_pos = (_left_dt.position(vex::degrees) + _right_dt.position(vex::degrees)) / 2.0;
+        progress = (current_pos + lookahead) / target_encoder;
+        progress = math::clamp(progress, 0.0, 1.0);
+        heading_target = helpers::wrapTo180(start_heading + (angle * progress));
+        heading_error = helpers::angular_difference(_imu.heading(vex::degrees), heading_target);
+        heading_correction = _heading_pid.compute(heading_error, 0.0, 0.02);
+        left_speed = direction * speed_limit + heading_correction;
+        right_speed = direction * speed_limit - heading_correction;
+        left_speed = math::clamp(left_speed, -speed_limit, speed_limit);
+        right_speed = math::clamp(right_speed, -speed_limit, speed_limit);
+        left_speed *= (_max_voltage / 100.0);
+        right_speed *= (_max_voltage / 100.0);
+        _left_dt.spin(vex::forward, left_speed, vex::voltageUnits::volt);
+        _right_dt.spin(vex::forward, right_speed, vex::voltageUnits::volt);
+        if (std::abs(current_pos - target_encoder) < 25 && std::abs(heading_error) < 1.0) {
+            settle_count++;
+        } else {
+            settle_count = 0;
+        }
+        vex::task::sleep(20);
+        if (settle_count >= 3) break;
+    }
+    _left_dt.stop();
+    _right_dt.stop();
+    _heading_pid.set_gains(HEADING_KP, HEADING_KI, HEADING_KD);
     coast();
 }
 
