@@ -50,33 +50,45 @@ class Inertial : public vex::inertial {
             switch (direction) {
                 case CW:
                     switch (zero) {
-                        case Y:
-                            return this->heading(vex::degrees);
+                        case Y: {
+                            double heading = this->heading(vex::degrees);
+                            if (heading > 180) heading -= 360;
+                            return heading;
+                        }
                         case X: {
                             double heading = this->heading(vex::degrees) - 90;
                             if (heading > 180) heading -= 360;
                             return heading;
                         }
-                        default: 
-                            return this->heading(vex::degrees); 
+                        default: {
+                            double heading = this->heading(vex::degrees);
+                            if (heading > 180) heading -= 360;
+                            return heading;
+                        }
                     }
                 case CCW:
                     switch (zero) {
                         case Y: {
                             double heading = 360 - this->heading(vex::degrees);
-                            if (heading == 360) heading = 0;
+                            if (heading > 180) heading -= 360;
                             return heading;
                         }
                         case X: {
                             double heading = 90 - this->heading(vex::degrees);
-                            if (heading < 0) heading += 360;
+                            if (heading <= -180) heading += 360;
                             return heading;
                         }
-                        default: 
-                            return 360 - this->heading(vex::degrees);
+                        default: {
+                            double heading = 360 - this->heading(vex::degrees);
+                            if (heading > 180) heading -= 360;
+                            return heading;
+                        }
                     }
-                default:
-                    return this->heading(vex::degrees);
+                default: {
+                    double heading = this->heading(vex::degrees);
+                    if (heading > 180) heading -= 360;
+                    return heading;
+                }
             }
         }
         inline double get_roll() {

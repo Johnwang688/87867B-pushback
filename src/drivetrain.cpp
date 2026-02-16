@@ -98,7 +98,6 @@ void Drivetrain::drive(double distance, double timeout, double speed_limit, doub
     double dist = helpers::mmToDegrees(distance);
     direction = dist > 0 ? 1 : -1;
 
-
     while (timeout > 0 && bot::Brain.Timer.time(vex::msec) - start_time < timeout) {
         heading_error = helpers::angular_difference(_imu.heading(vex::degrees), target_heading);
         heading_correction = _heading_pid.compute(heading_error, 0.0, 0.01);

@@ -11,7 +11,7 @@ struct Particle {
     std::int16_t x, y, heading;
     std::uint16_t front_left, front_right, back_left, back_right, 
     left_forward, left_aft, right_forward, right_aft;
-    bool valid;  // Flag to indicate if particle is within bounds
+    bool valid;
 };
 
 struct Reading {
