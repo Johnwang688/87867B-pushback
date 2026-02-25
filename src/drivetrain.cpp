@@ -16,7 +16,9 @@ Drivetrain::Drivetrain(vex::motor_group& left_dt,
     _heading_pid(HEADING_KP, HEADING_KI, HEADING_KD),
     _turn_pid(TURN_KP, TURN_KI, TURN_KD),
     _left_arc_pid(ARC_KP, ARC_KI, ARC_KD),
-    _right_arc_pid(ARC_KP, ARC_KI, ARC_KD)
+    _right_arc_pid(ARC_KP, ARC_KI, ARC_KD),
+    _heading_pidf(20.0, 0.0, 0.0),
+    _distance_pidf(0.1, 0.0, 0.0)
     {}
 
 void Drivetrain::tank_drive(double left_speed, double right_speed) {
@@ -158,7 +160,6 @@ void Drivetrain::drive_arc(double radius, double angle, double timeout, double s
     int settle_count = 0;
     double start_time = bot::Brain.Timer.time(vex::msec);
     double start_heading = _imu.heading(vex::degrees);
-    double target_heading = helpers::wrapTo180(start_heading + angle);
     double direction = (radius * angle >= 0) ? 1.0 : -1.0;
     double arc_length = std::abs(radius) * math::to_rad(std::abs(angle));
     double target_encoder = direction * helpers::mmToDegrees(arc_length);
@@ -198,4 +199,73 @@ void Drivetrain::drive_arc(double radius, double angle, double timeout, double s
     coast();
 }
 
+void Drivetrain::drive_to(std::vector<Waypoint> waypoints, double speed_limit){
+    double start_time = bot::Brain.Timer.time(vex::msec);
+    const double kF = 50.0;
+    const double max_heading_correction = 0.5;
+    Waypoint start_waypoint;
+    start_waypoint.x = 0; start_waypoint.y = 0;
+    start_waypoint.heading = _imu.heading(vex::degrees);
+    start_waypoint.time = start_time;
+    for (Waypoint& waypoint : waypoints) {
+        double cycles = (waypoint.time) / 20.0f;
+        double current_encoder = (_left_dt.position(vex::degrees) + _right_dt.position(vex::degrees)) / 2.0f;
+        double current_heading = _imu.heading(vex::degrees);
+        double waypoint_heading_error = helpers::angular_difference(current_heading, waypoint.heading);
+        double dx = waypoint.x - start_waypoint.x;
+        double dy = waypoint.y - start_waypoint.y;
+        double arc_distance;
+        double chord = std::hypot(dx, dy);
+        if (std::abs(waypoint_heading_error) < 1e-6) {
+            arc_distance = helpers::mmToDegrees(chord);
+        } else {
+            double theta = math::to_rad(std::abs(waypoint_heading_error));
+            arc_distance = helpers::mmToDegrees((chord * theta) / (2.0 * std::sin(theta * 0.5)));
+        }
+        std::vector<double> headings;
+        std::vector<double> distances;
+        headings.reserve(static_cast<size_t>(cycles));
+        distances.reserve(static_cast<size_t>(cycles));
+        double inv_cycles = 1.0 / cycles;
+        for (int i = 0; i < cycles; i++) {
+            double progress = (i + 1) * inv_cycles;
+            headings.push_back(helpers::wrapTo180(current_heading + (waypoint_heading_error * progress)));
+        }
+        double direction = (waypoint.direction >= 0) ? 1.0 : -1.0;
+        double signed_arc_distance = arc_distance * direction;
+
+        for (int i = 0; i < cycles; i++) {
+            double progress = (i + 1) * inv_cycles;
+            distances.push_back(current_encoder + (signed_arc_distance * progress));
+        }
+        _heading_pidf.reset();
+        _distance_pidf.reset();
+        double heading_error, distance_error, heading_correction, distance_correction, feedforward;
+        double base_speed, heading_ratio, scaled_heading, left_speed, right_speed;
+        for (int i = 0; i < cycles; i++) {
+            heading_error = helpers::angular_difference(_imu.heading(vex::degrees), headings[i]);
+            distance_error = distances[i] - (_left_dt.position(vex::degrees) + _right_dt.position(vex::degrees)) / 2.0f;
+            heading_correction = _heading_pidf.compute(heading_error, 0.0, 0.02, 5.0);
+            distance_correction = _distance_pidf.compute(distance_error, 0.0, 0.02);
+            distance_correction = math::clamp(distance_correction, -speed_limit + kF, speed_limit - kF);
+            feedforward = kF * direction;
+            base_speed = feedforward + distance_correction;
+            heading_ratio = math::clamp(heading_correction * 0.01, -max_heading_correction, max_heading_correction);
+            scaled_heading = heading_ratio * std::max(std::abs(base_speed), 10.0);
+            left_speed = base_speed + scaled_heading;
+            right_speed = base_speed - scaled_heading;
+            left_speed = math::clamp(left_speed, -speed_limit, speed_limit);
+            right_speed = math::clamp(right_speed, -speed_limit, speed_limit);
+            left_speed *= (_max_voltage / 100.0);
+            right_speed *= (_max_voltage / 100.0);
+            _left_dt.spin(vex::forward, left_speed, vex::voltageUnits::volt);
+            _right_dt.spin(vex::forward, right_speed, vex::voltageUnits::volt);
+            vex::task::sleep(20);
+        }
+        start_waypoint = waypoint;
+    }
+    _left_dt.stop();
+    _right_dt.stop();
+    coast();
+}
 }

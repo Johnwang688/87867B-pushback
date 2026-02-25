@@ -14,91 +14,6 @@
 
 using namespace vex;
 
-void auton_selector() {
-
-  if (bot::auton_list.empty()) {
-    return;
-  }
-
-  bool redraw = true;
-  const int listSize = static_cast<int>(bot::auton_list.size());
-  const int maxTopIndex = (listSize > 3) ? (listSize - 3) : 0;
-
-  while (bot::currentState != bot::READY) {
-
-    if (bot::currentState == bot::SELECTING) {
-
-      if (redraw) {
-        bot::draw_list();
-        redraw = false;
-      }
-
-      // Scroll Down
-      if (bot::Controller1.ButtonDown.pressing()) {
-        bot::selectedIndex++;
-        if (bot::selectedIndex >= listSize)
-          bot::selectedIndex = listSize - 1;
-
-        if (bot::selectedIndex > bot::topIndex + 2)
-          bot::topIndex++;
-        if (bot::topIndex > maxTopIndex)
-          bot::topIndex = maxTopIndex;
-
-        redraw = true;
-        wait(250, msec);
-      }
-
-      // Scroll Up
-      if (bot::Controller1.ButtonUp.pressing()) {
-        bot::selectedIndex--;
-        if (bot::selectedIndex < 0)
-          bot::selectedIndex = 0;
-
-        if (bot::selectedIndex < bot::topIndex)
-          bot::topIndex--;
-        if (bot::topIndex < 0)
-          bot::topIndex = 0;
-
-        redraw = true;
-        wait(250, msec);
-      }
-
-      // Select
-      if (bot::Controller1.ButtonA.pressing()) {
-        bot::currentState = bot::CONFIRMING;
-        redraw = true;
-        while (bot::Controller1.ButtonA.pressing()) { wait(20, msec); }
-        wait(100, msec);
-      }
-    }
-
-    else if (bot::currentState == bot::CONFIRMING) {
-
-      if (redraw) {
-        bot::draw_confirm();
-        redraw = false;
-      }
-
-      if (bot::Controller1.ButtonA.pressing()) {
-        bot::confirmedAuton = bot::selectedIndex;
-        bot::currentState = bot::READY;
-        wait(300, msec);
-      }
-      else if (bot::Controller1.ButtonB.pressing()) {
-        bot::currentState = bot::SELECTING;
-        redraw = true;
-        while (bot::Controller1.ButtonB.pressing()) { wait(20, msec); }
-        wait(100, msec);
-      }
-    }
-
-    wait(20, msec);
-  }
-
-  bot::draw_ready();
-}
-
-
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
@@ -115,8 +30,9 @@ void pre_auton(void) {
   // Example: clearing encoders, setting servo positions, ...
 
   bot::sensors::imu.calibrate();
-  vex::task::sleep(500);
-  auton_selector();
+  while (bot::sensors::imu.isCalibrating()) {
+    vex::task::sleep(10);
+  }
   return;
 }
 
@@ -131,26 +47,14 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  if (bot::confirmedAuton < 0 || bot::confirmedAuton >= (int)bot::auton_list.size()) {
-    return;
-  }
-
-  switch (bot::confirmedAuton) {
-    case 0:  bot::autons::left_7(); break;
-    case 1:  bot::autons::left_4(); break;
-    case 2:  bot::autons::left_4_3(); break;
-    case 3:  bot::autons::left_6_3(); break;
-    case 4:  bot::autons::left_6(); break;
-    case 5:  bot::autons::right_7(); break;
-    case 6:  bot::autons::right_6(); break;
-    case 7:  bot::autons::right_4(); break;
-    case 8:  bot::autons::right_4_3(); break;
-    case 9:  bot::autons::sawp(); break;
-    case 10: bot::autons::counter_sawp(); break;
-    case 11: bot::autons::skills(); break;
-    case 12: bot::autons::test(); break;
-    default: break;
-  }
+  double start_time = bot::Brain.Timer.time(vex::msec);
+  bot::autons::sawp();
+  double end_time = bot::Brain.Timer.time(vex::msec);
+  bot::Controller1.Screen.setCursor(2,1);
+  bot::Controller1.Screen.print("end time: %.1f", end_time);
+  bot::Controller1.Screen.setCursor(3,1);
+  bot::Controller1.Screen.print("time taken: %.1f", end_time - start_time);
+  return;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -240,12 +144,11 @@ void usercontrol(void) {
 // Main will set up the competition functions and callbacks.
 //
 int main() {
+  pre_auton();
+
   // Set up callbacks for autonomous and driver control periods.
   bot::Competition.autonomous(autonomous);
   bot::Competition.drivercontrol(usercontrol);
-
-  // Run the pre-autonomous function.
-  pre_auton();
 
   // Prevent main from exiting with an infinite loop.
   while (true) {

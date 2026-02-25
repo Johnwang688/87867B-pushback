@@ -32,5 +32,7 @@ enum class IntakeMode : std::int8_t {
 struct Waypoint {
     double x;
     double y;
-    IntakeMode intake_mode;
+    double heading;
+    double time;
+    std::int8_t direction;
 };

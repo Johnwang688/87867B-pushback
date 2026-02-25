@@ -8,7 +8,7 @@ namespace bot {
 
     namespace motors {
         vex::motor leftA = vex::motor(vex::PORT11, vex::ratio6_1, true);
-		vex::motor leftB = vex::motor(vex::PORT19, vex::ratio6_1, false);
+		vex::motor leftB = vex::motor(vex::PORT12, vex::ratio6_1, false);
 		vex::motor leftC = vex::motor(vex::PORT20, vex::ratio6_1, true); 
 
 		vex::motor rightA = vex::motor(vex::PORT1, vex::ratio6_1, false);
@@ -27,6 +27,8 @@ namespace bot {
 
     namespace sensors {
         vex::inertial imu = vex::inertial(vex::PORT18);
+        vex::distance left_dist = vex::distance(vex::PORT15);
+        vex::distance right_dist = vex::distance(vex::PORT7);
         //vex::distance left_dist_fwd = vex::distance(vex::PORT12);
 		//vex::distance left_dist_aft = vex::distance(vex::PORT13);
 		//vex::distance right_dist_fwd = vex::distance(vex::PORT6);

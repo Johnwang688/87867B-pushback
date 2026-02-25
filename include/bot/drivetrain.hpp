@@ -3,6 +3,7 @@
 #include "bot/bot.hpp"
 #include "bot/pid.hpp"
 #include "location.hpp"
+#include "bot/types.hpp"
 
 namespace bot {
 
@@ -25,7 +26,7 @@ class Drivetrain {
         void turn_to_heading(double heading, double timeout, double speed_limit);
         void drive_arc(double radius, double angle, double timeout, double speed_limit, double lookahead);
 
-
+        void drive_to(std::vector<Waypoint> waypoints, double speed_limit);
     private:
         vex::motor_group& _left_dt;
         vex::motor_group& _right_dt;
@@ -40,6 +41,8 @@ class Drivetrain {
         PID _turn_pid;
         PID _left_arc_pid;
         PID _right_arc_pid;
+        PID _heading_pidf;
+        PID _distance_pidf;
 };
 
 }

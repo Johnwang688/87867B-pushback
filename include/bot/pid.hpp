@@ -7,6 +7,7 @@ class PID {
     public:
     PID(double kp, double ki, double kd);
     double compute(double setpoint, double input, double dt);
+    double compute(double setpoint, double input, double dt, double integral_zone);
     inline void set_gains(double kp, double ki, double kd) {
         _kp = kp;
         _ki = ki;
