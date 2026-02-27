@@ -452,6 +452,7 @@ namespace bot {
             dt.drive(-100, 500, 40, -45);
             dt.drive(-200, 800, 40, -45+heading_correct_2);
             bot::pistons::match_load_piston.set(false);
+            // TODO: split this drive_for to increase consistency and allow heading correction chaining. 
             dt.drive_for(-1200, 1500, 80, -45);
             bot::motors::lower.spin(vex::reverse, 6.0, vex::volt);
             dt.drive(-300, 500, 35, -45);
@@ -477,7 +478,7 @@ namespace bot {
             double left_distance_2 = bot::sensors::left_dist.objectDistance(vex::mm);
             double dsr_distance;
             if (left_distance_2 == 9999 || left_distance_2 <= 0) dsr_distance = 350.0;
-            else if (left_distance_2 < 700.0) dsr_distance = left_distance_2 - 200.0;
+            else if (left_distance_2 < 700.0) dsr_distance = left_distance_2 - 250.0;
             else dsr_distance = left_distance_2 - 650.0;
             bot::pistons::match_load_piston.set(true);
             dt.drive(400, 1500, 50, 20);
@@ -592,8 +593,8 @@ namespace bot {
             bot::motors::lower.spin(vex::forward, 100, vex::percent);
             bot::pistons::arm_piston.set(true);
             dt.drive_to({
-                {200, 400, 35, 800, 1},
-                {600, 200, -90, 1000, 1}
+                {bot::fwd, 200, 400, 35, 800},
+                {bot::fwd, 600, 200, -90, 1000}
             }, 100);
             return;
         }

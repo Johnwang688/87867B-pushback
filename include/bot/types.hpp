@@ -29,10 +29,19 @@ enum class IntakeMode : std::int8_t {
     OUTTAKE = -1,
 };
 
+namespace bot {
+    enum driveDirection : std::int8_t {
+        fwd = 1,
+        rev = -1
+    };
+}
+
 struct Waypoint {
+    bot::driveDirection direction;
     double x;
     double y;
     double heading;
     double time;
-    std::int8_t direction;
 };
+
+

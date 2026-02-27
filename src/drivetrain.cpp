@@ -231,7 +231,15 @@ void Drivetrain::drive_to(std::vector<Waypoint> waypoints, double speed_limit){
             double progress = (i + 1) * inv_cycles;
             headings.push_back(helpers::wrapTo180(current_heading + (waypoint_heading_error * progress)));
         }
-        double direction = (waypoint.direction >= 0) ? 1.0 : -1.0;
+        double direction;
+        switch (waypoint.direction) {
+            case bot::fwd:
+                direction = 1.0;
+                break;
+            case bot::rev:
+                direction = -1.0;
+                break;
+        }
         double signed_arc_distance = arc_distance * direction;
 
         for (int i = 0; i < cycles; i++) {
@@ -262,6 +270,7 @@ void Drivetrain::drive_to(std::vector<Waypoint> waypoints, double speed_limit){
             _right_dt.spin(vex::forward, right_speed, vex::voltageUnits::volt);
             vex::task::sleep(20);
         }
+
         start_waypoint = waypoint;
     }
     _left_dt.stop();
