@@ -17,8 +17,8 @@ Drivetrain::Drivetrain(vex::motor_group& left_dt,
     _turn_pid(TURN_KP, TURN_KI, TURN_KD),
     _left_arc_pid(ARC_KP, ARC_KI, ARC_KD),
     _right_arc_pid(ARC_KP, ARC_KI, ARC_KD),
-    _heading_pidf(20.0, 0.0, 0.0),
-    _distance_pidf(0.1, 0.0, 0.0)
+    _heading_pidf(20.0, 0.0, 6.0),
+    _distance_pidf(0.1, 0.0, 0.5)
     {}
 
 void Drivetrain::tank_drive(double left_speed, double right_speed) {
@@ -54,6 +54,14 @@ void Drivetrain::coast() {
 void Drivetrain::hold() {
     _left_dt.setStopping(vex::brakeType::hold);
     _right_dt.setStopping(vex::brakeType::hold);
+}
+
+void Drivetrain::match_load(int times) {
+    coast();
+    for (int i = 0; i < times; i++) {
+        drive(300, 300, 50, _imu.heading(vex::degrees));
+        vex::task::sleep(200);
+    }
 }
 
 void Drivetrain::drive_for(double distance, double timeout, double speed_limit, double target_heading) {
@@ -201,14 +209,15 @@ void Drivetrain::drive_arc(double radius, double angle, double timeout, double s
 
 void Drivetrain::drive_to(std::vector<Waypoint> waypoints, double speed_limit){
     double start_time = bot::Brain.Timer.time(vex::msec);
-    const double kF = 50.0;
-    const double max_heading_correction = 0.5;
+    const double max_heading_correction = 1.0;
+    const int lookahead = 5;
+    double kF = 50.0;
     Waypoint start_waypoint;
     start_waypoint.x = 0; start_waypoint.y = 0;
     start_waypoint.heading = _imu.heading(vex::degrees);
     start_waypoint.time = start_time;
     for (Waypoint& waypoint : waypoints) {
-        double cycles = (waypoint.time) / 20.0f;
+        int cycles = static_cast<int>((waypoint.time) / 10.0f);
         double current_encoder = (_left_dt.position(vex::degrees) + _right_dt.position(vex::degrees)) / 2.0f;
         double current_heading = _imu.heading(vex::degrees);
         double waypoint_heading_error = helpers::angular_difference(current_heading, waypoint.heading);
@@ -222,14 +231,19 @@ void Drivetrain::drive_to(std::vector<Waypoint> waypoints, double speed_limit){
             double theta = math::to_rad(std::abs(waypoint_heading_error));
             arc_distance = helpers::mmToDegrees((chord * theta) / (2.0 * std::sin(theta * 0.5)));
         }
+        kF = (arc_distance/waypoint.time) * 100.0;
+        kF = math::clamp(kF, 0.0, 100.0);
         std::vector<double> headings;
         std::vector<double> distances;
-        headings.reserve(static_cast<size_t>(cycles));
-        distances.reserve(static_cast<size_t>(cycles));
-        double inv_cycles = 1.0 / cycles;
+        headings.reserve(static_cast<size_t>(cycles + lookahead));
+        distances.reserve(static_cast<size_t>(cycles + lookahead));
+        double inv_cycles = 1.0 / static_cast<double>(cycles);
         for (int i = 0; i < cycles; i++) {
             double progress = (i + 1) * inv_cycles;
             headings.push_back(helpers::wrapTo180(current_heading + (waypoint_heading_error * progress)));
+        }
+        for (int i = 0; i < lookahead; i++){
+            headings.push_back(headings[headings.size() - 1]);
         }
         double direction;
         switch (waypoint.direction) {
@@ -251,7 +265,7 @@ void Drivetrain::drive_to(std::vector<Waypoint> waypoints, double speed_limit){
         double heading_error, distance_error, heading_correction, distance_correction, feedforward;
         double base_speed, heading_ratio, scaled_heading, left_speed, right_speed;
         for (int i = 0; i < cycles; i++) {
-            heading_error = helpers::angular_difference(_imu.heading(vex::degrees), headings[i]);
+            heading_error = helpers::angular_difference(_imu.heading(vex::degrees), headings[i + lookahead]);
             distance_error = distances[i] - (_left_dt.position(vex::degrees) + _right_dt.position(vex::degrees)) / 2.0f;
             heading_correction = _heading_pidf.compute(heading_error, 0.0, 0.02, 5.0);
             distance_correction = _distance_pidf.compute(distance_error, 0.0, 0.02);
@@ -268,7 +282,7 @@ void Drivetrain::drive_to(std::vector<Waypoint> waypoints, double speed_limit){
             right_speed *= (_max_voltage / 100.0);
             _left_dt.spin(vex::forward, left_speed, vex::voltageUnits::volt);
             _right_dt.spin(vex::forward, right_speed, vex::voltageUnits::volt);
-            vex::task::sleep(20);
+            vex::task::sleep(10);
         }
 
         start_waypoint = waypoint;

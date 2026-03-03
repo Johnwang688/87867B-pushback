@@ -26,6 +26,7 @@ class Drivetrain {
         void turn_to_heading(double heading, double timeout, double speed_limit);
         void drive_arc(double radius, double angle, double timeout, double speed_limit, double lookahead);
 
+        void match_load(int times);
         void drive_to(std::vector<Waypoint> waypoints, double speed_limit);
     private:
         vex::motor_group& _left_dt;

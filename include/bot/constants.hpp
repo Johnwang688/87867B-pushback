@@ -21,7 +21,7 @@ constexpr double MAX_OUTPUT = 100.0;
 constexpr double DT = 0.02; // seconds 
 
 // pure pursuit constants
-constexpr double HEADING_KP = 1.25;
+constexpr double HEADING_KP = 1.5;
 constexpr double HEADING_KI = 0.05;
 constexpr double HEADING_KD = 0.02;
 
