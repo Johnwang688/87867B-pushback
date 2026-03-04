@@ -48,7 +48,7 @@ void pre_auton(void) {
 
 void autonomous(void) {
   double start_time = bot::Brain.Timer.time(vex::msec);
-  bot::autons::skills_80();
+  bot::autons::sawp();
   double end_time = bot::Brain.Timer.time(vex::msec);
   bot::Controller1.Screen.setCursor(2,1);
   bot::Controller1.Screen.print("end time: %.1f", end_time);
@@ -72,6 +72,7 @@ void usercontrol(void) {
   bot::motors::left_dt.stop();
   bot::motors::right_dt.stop();
   bot::motors::intake.stop();
+  bot::pistons::arm_piston.set(true);
 
   //bot::sensors::imu.calibrate();
   //vex::task::sleep(500);
@@ -107,7 +108,7 @@ void usercontrol(void) {
   // variables for driver control
   double leftY, leftX, rightY, rightX;
   double left_joystick, right_joystick;
-  double left, right;
+  double fwd, turn;
 
   while (1) {
     leftY = bot::Controller1.Axis3.position();
@@ -127,13 +128,16 @@ void usercontrol(void) {
     if (fabs(left_joystick) < CONTROLLER_DEADZONE) left_joystick = 0.0;
     if (fabs(right_joystick) < CONTROLLER_DEADZONE) right_joystick = 0.0;
      
-    left = (leftY < 0) ? -left_joystick : left_joystick;
-    right = (rightY < 0) ? -right_joystick : right_joystick;
+    fwd = (leftY < 0) ? -left_joystick : left_joystick;
+    turn = (rightX < 0) ? -right_joystick : right_joystick;
 
-    left = math::clamp(left, -100, 100);
-    right = math::clamp(right, -100, 100);
+    fwd = math::clamp(fwd, -100, 100);
+    turn = math::clamp(turn, -100, 100);
 
-    bot::drivetrains::dt.tank_drive(left, right);
+    fwd *= 1.25;
+    turn *= 1.5;
+
+    bot::drivetrains::dt.arcade_drive(fwd, turn);
 
     vex::task::sleep(20); // Sleep the task for a short amount of time to
                           // prevent wasted resources.

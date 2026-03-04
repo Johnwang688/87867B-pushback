@@ -91,22 +91,22 @@ namespace bot {
         using namespace bot::pistons;
     
         void ButtonL1(){
-            bot::pistons::arm_piston.set(false);
+            bot::intake_methods::score_upper();
             //bot::motors::upper.spin(vex::forward, 100, vex::percent);
             //bot::motors::mid.spin(vex::forward, 50, vex::percent);
         }
         void ButtonL1_released(){
-            bot::pistons::arm_piston.set(true);
+            bot::intake_methods::stop_scoring_upper();
             //bot::motors::upper.stop();
             //bot::motors::mid.stop();
         }
         void ButtonL2(){
-            bot::intake_methods::score_upper();
+            bot::intake_methods::score_middle();
             //bot::motors::upper.spin(vex::reverse, 100, vex::percent);
             //bot::motors::mid.spin(vex::reverse, 50, vex::percent);
         }
         void ButtonL2_released(){
-            bot::intake_methods::stop_scoring_upper();
+            bot::intake_methods::stop_scoring_middle();
             //bot::motors::upper.stop();
             //bot::motors::mid.stop();
         }
@@ -117,16 +117,23 @@ namespace bot {
             bot::intake_methods::stop_intaking();
         }
         void ButtonR2(){
-            bot::intake_methods::outtake();
+            bot::pistons::arm_piston.set(true);
+            if (bot::sensors::imu.heading(vex::degrees) < 90.0 || bot::sensors::imu.heading(vex::degrees) > 270.0) {
+                bot::drivetrains::dt.set_arm_assist_heading(0.0);
+            } else {
+                bot::drivetrains::dt.set_arm_assist_heading(180.0);
+            }
+            bot::drivetrains::dt.start_arm_assist();
         }
         void ButtonR2_released(){
-            bot::intake_methods::stop_outtaking();
+            bot::pistons::arm_piston.set(false);
+            bot::drivetrains::dt.stop_arm_assist();
         }
         void ButtonX(){
             bot::display_temperature();
         }
         void ButtonY(){
-            bot::intake_methods::toggle_middle_score();
+            //bot::intake_methods::toggle_middle_score();
             //bot::intake_methods::score_middle();
             //bot::intake_methods::intake();
         }
@@ -144,10 +151,11 @@ namespace bot {
             //debug::print_location();
         }
         void ButtonRight(){
-
+            bot::drivetrains::dt.arm_right();
         }
         void ButtonDown(){
             //bot::pistons::toggle_arm_piston();
+            bot::drivetrains::dt.arm_left();
         }
         void ButtonUp(){
             

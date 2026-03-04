@@ -14,6 +14,18 @@ class Drivetrain {
             vex::motor_group& right_dt,
             vex::inertial& imu
         );
+        volatile bool _arm_assist = false;
+        void set_arm_assist(bool value);
+        volatile double _arm_assist_heading = 0.0;
+        void set_arm_assist_heading(double heading);
+        inline double arm_assist_heading() { return _arm_assist_heading; }
+        inline bool arm_assist() { return _arm_assist; }
+        void start_arm_assist();
+        void stop_arm_assist();
+
+        void arm_left();
+        void arm_right();
+
         void tank_drive(double left_speed, double right_speed);
         void arcade_drive(double fwd, double turn);
         void stop();
@@ -44,6 +56,7 @@ class Drivetrain {
         PID _right_arc_pid;
         PID _heading_pidf;
         PID _distance_pidf;
+        PID _arm_assist_pid;
 };
 
 }

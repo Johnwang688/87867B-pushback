@@ -18,7 +18,8 @@ Drivetrain::Drivetrain(vex::motor_group& left_dt,
     _left_arc_pid(ARC_KP, ARC_KI, ARC_KD),
     _right_arc_pid(ARC_KP, ARC_KI, ARC_KD),
     _heading_pidf(20.0, 0.0, 6.0),
-    _distance_pidf(0.1, 0.0, 0.5)
+    _distance_pidf(0.1, 0.0, 0.5),
+    _arm_assist_pid(2.0, 0.0, 0.15)
     {}
 
 void Drivetrain::tank_drive(double left_speed, double right_speed) {
@@ -28,11 +29,36 @@ void Drivetrain::tank_drive(double left_speed, double right_speed) {
     _right_dt.spin(vex::forward, right_speed * 0.11, vex::volt);
 }
 
+void Drivetrain::set_arm_assist(bool value) {
+    _arm_assist = value;
+}
+void Drivetrain::set_arm_assist_heading(double heading) {
+    _arm_assist_heading = heading;
+}
+
+void Drivetrain::start_arm_assist() {
+    _arm_assist = true;
+}
+void Drivetrain::stop_arm_assist() {
+    _arm_assist = false;
+}
+
 void Drivetrain::arcade_drive(double fwd, double turn) {
     fwd = math::clamp(fwd, -100, 100);
     turn = math::clamp(turn, -100, 100);
     double left_speed = math::clamp(fwd + turn, -100, 100);
     double right_speed = math::clamp(fwd - turn, -100, 100);
+    if (_arm_assist) {
+        double heading_error = helpers::angular_difference(_imu.heading(vex::degrees), _arm_assist_heading);
+        double heading_correction;
+        if (std::abs(heading_error) < 2.0) {
+            heading_correction = 0.0;
+        } else {
+            heading_correction = _arm_assist_pid.compute(heading_error, 0.0, 0.02);
+        }
+        left_speed += heading_correction;
+        right_speed -= heading_correction;
+    }
     tank_drive(left_speed, right_speed);
 }
 
@@ -291,4 +317,22 @@ void Drivetrain::drive_to(std::vector<Waypoint> waypoints, double speed_limit){
     _right_dt.stop();
     coast();
 }
+
+void Drivetrain::arm_left() {
+    bot::Controller1.rumble("-");
+    drive(170, 1000, 50, -90);
+    turn_to_heading(0, 500, 100);
+    bot::Controller1.rumble("-");
+    coast();
 }
+
+void Drivetrain::arm_right() {
+    bot::Controller1.rumble("-");
+    drive(170, 1000, 50, 90);
+    turn_to_heading(180, 500, 100);
+    bot::Controller1.rumble("-");
+    coast();
+}
+
+} // namespace bot
+

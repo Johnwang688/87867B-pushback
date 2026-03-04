@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bot/bot.hpp"
+#include "auton.hpp"
 
 namespace bot {
 
