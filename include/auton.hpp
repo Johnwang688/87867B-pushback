@@ -29,6 +29,7 @@ namespace bot {
         void skills();
         void skills_80();
         void test();
+        void no_auton();
     }
 
 }

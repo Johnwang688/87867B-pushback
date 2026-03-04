@@ -319,19 +319,20 @@ void Drivetrain::drive_to(std::vector<Waypoint> waypoints, double speed_limit){
 }
 
 void Drivetrain::arm_left() {
-    bot::Controller1.rumble("-");
-    drive(170, 1000, 50, -90);
+    drive(100, 1000, 50, bot::sensors::imu.heading(vex::degrees));
+    drive(150, 1000, 50, -90);
     turn_to_heading(0, 500, 100);
-    bot::Controller1.rumble("-");
     coast();
+    return;
 }
 
 void Drivetrain::arm_right() {
-    bot::Controller1.rumble("-");
-    drive(170, 1000, 50, 90);
+    double start_heading = bot::sensors::imu.heading(vex::degrees);
+    drive(100, 1000, 50, start_heading);
+    drive(150, 1000, 50, 90);
     turn_to_heading(180, 500, 100);
-    bot::Controller1.rumble("-");
     coast();
+    return;
 }
 
 } // namespace bot

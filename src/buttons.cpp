@@ -3,6 +3,8 @@
 
 namespace bot {
     bool mid_scoring_status = false;
+    bool arm_left_requested = false;
+    bool arm_right_requested = false;
     void display_temperature() {
         double max_left_temp = 0.0, max_right_temp = 0.0;
         // list of left drivetrain motors
@@ -118,16 +120,18 @@ namespace bot {
         }
         void ButtonR2(){
             bot::pistons::arm_piston.set(true);
+            /*
             if (bot::sensors::imu.heading(vex::degrees) < 90.0 || bot::sensors::imu.heading(vex::degrees) > 270.0) {
                 bot::drivetrains::dt.set_arm_assist_heading(0.0);
             } else {
                 bot::drivetrains::dt.set_arm_assist_heading(180.0);
             }
             bot::drivetrains::dt.start_arm_assist();
+            */
         }
         void ButtonR2_released(){
             bot::pistons::arm_piston.set(false);
-            bot::drivetrains::dt.stop_arm_assist();
+            //bot::drivetrains::dt.stop_arm_assist();
         }
         void ButtonX(){
             bot::display_temperature();
@@ -143,6 +147,10 @@ namespace bot {
         }
         void ButtonA(){
             //debug::print_sensor_data();
+            bot::intake_methods::outtake();
+        }
+        void ButtonA_released(){
+            bot::intake_methods::stop_outtaking();
         }
         void ButtonB(){
             bot::pistons::toggle_match_load_piston();
@@ -151,11 +159,11 @@ namespace bot {
             //debug::print_location();
         }
         void ButtonRight(){
-            bot::drivetrains::dt.arm_right();
+            bot::arm_right_requested = true;
         }
         void ButtonDown(){
             //bot::pistons::toggle_arm_piston();
-            bot::drivetrains::dt.arm_left();
+            bot::arm_left_requested = true;
         }
         void ButtonUp(){
             

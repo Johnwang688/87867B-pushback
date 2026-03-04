@@ -8,6 +8,8 @@ namespace bot {
     void display_temperature();
 
     extern bool mid_scoring_status;
+    extern bool arm_left_requested;
+    extern bool arm_right_requested;
 
     namespace intake_methods {
         void intake();
@@ -33,6 +35,7 @@ namespace bot {
         void ButtonY();
         void ButtonY_released();
         void ButtonA();
+        void ButtonA_released();
         void ButtonB();
         void ButtonLeft();
         void ButtonRight();

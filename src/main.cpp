@@ -28,7 +28,7 @@ void pre_auton(void) {
 
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
-
+  bot::pistons::arm_piston.set(true);
   bot::sensors::imu.calibrate();
   while (bot::sensors::imu.isCalibrating()) {
     vex::task::sleep(10);
@@ -48,7 +48,7 @@ void pre_auton(void) {
 
 void autonomous(void) {
   double start_time = bot::Brain.Timer.time(vex::msec);
-  bot::autons::sawp();
+  bot::autons::left_4_3();
   double end_time = bot::Brain.Timer.time(vex::msec);
   bot::Controller1.Screen.setCursor(2,1);
   bot::Controller1.Screen.print("end time: %.1f", end_time);
@@ -95,6 +95,7 @@ void usercontrol(void) {
   bot::Controller1.ButtonR2.released(bot::buttons::ButtonR2_released);
 
   bot::Controller1.ButtonA.pressed(bot::buttons::ButtonA);
+  bot::Controller1.ButtonA.released(bot::buttons::ButtonA_released);
   bot::Controller1.ButtonB.pressed(bot::buttons::ButtonB);
   bot::Controller1.ButtonX.pressed(bot::buttons::ButtonX);
   bot::Controller1.ButtonY.pressed(bot::buttons::ButtonY);
@@ -111,6 +112,18 @@ void usercontrol(void) {
   double fwd, turn;
 
   while (1) {
+    /*
+    if (bot::arm_left_requested) {
+      bot::drivetrains::dt.arm_left();
+      bot::arm_left_requested = false;
+      continue;
+    }
+    if (bot::arm_right_requested) {
+      bot::drivetrains::dt.arm_right();
+      bot::arm_right_requested = false;
+      continue;
+    }*/
+
     leftY = bot::Controller1.Axis3.position();
     leftX = bot::Controller1.Axis4.position();
     rightY = bot::Controller1.Axis2.position();
