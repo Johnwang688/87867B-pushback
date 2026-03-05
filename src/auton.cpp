@@ -814,8 +814,8 @@ namespace bot {
             dt.turn_to_heading(90, 800, 100);
             dt.drive(-300, 700, 30, 90);
             dt.drive(-1500, 5000, 100, 90);
-            dt.drive(-1500, 1500, 50, 90);
-            dt.drive(400, 1000, 50, 90);
+            dt.drive(-800, 1500, 50, 90);
+            dt.drive_dist(500, 2000, 50, 90, 3.0, bot::sensors::back_dist);
             dt.brake();
             vex::task::sleep(200);
             dt.turn_to_heading(0, 500, 100);
