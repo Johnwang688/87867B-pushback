@@ -23,6 +23,8 @@ class Drivetrain {
         void start_arm_assist();
         void stop_arm_assist();
 
+
+
         void arm_left();
         void arm_right();
 
@@ -37,6 +39,7 @@ class Drivetrain {
         void drive(double distance, double timeout, double speed_limit, double target_heading);
         void turn_to_heading(double heading, double timeout, double speed_limit);
         void drive_arc(double radius, double angle, double timeout, double speed_limit, double lookahead);
+        void drive_dist(double target_distance, double timeout, double speed_limit, double target_heading, double distance_tolerance, vex::distance& distance_sensor);
 
         void match_load(int times);
         void drive_to(std::vector<Waypoint> waypoints, double speed_limit);

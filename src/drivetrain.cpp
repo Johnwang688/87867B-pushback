@@ -233,6 +233,38 @@ void Drivetrain::drive_arc(double radius, double angle, double timeout, double s
     coast();
 }
 
+void Drivetrain::drive_dist(double target_distance, double timeout, double speed_limit, double target_heading, double distance_tolerance, vex::distance& distance_sensor) {
+    double start_time = vex::timer::system();
+    int settle = 0;
+    double heading_error, heading_correction, current_dist, distance_error, base_speed,left_speed, right_speed;
+    _heading_pid.reset();
+    PID _distance_pid(0.4, 0.0, 0.2);
+    while (vex::timer::system() - start_time < timeout) {
+        current_dist = distance_sensor.objectDistance(vex::mm);
+        distance_error = target_distance - current_dist;
+        base_speed = _distance_pid.compute(distance_error, 0.0, 0.035);
+        base_speed = math::clamp(base_speed, -speed_limit, speed_limit);
+        heading_error = helpers::angular_difference(_imu.heading(vex::degrees), target_heading);
+        heading_correction = _heading_pid.compute(heading_error, 0.0, 0.035);
+        left_speed = base_speed + heading_correction;
+        right_speed = base_speed - heading_correction;
+        left_speed = math::clamp(left_speed, -speed_limit, speed_limit);
+        right_speed = math::clamp(right_speed, -speed_limit, speed_limit);
+        left_speed *= (_max_voltage / 100.0);
+        right_speed *= (_max_voltage / 100.0);
+        _left_dt.spin(vex::forward, left_speed, vex::voltageUnits::volt);
+        _right_dt.spin(vex::forward, right_speed, vex::voltageUnits::volt);
+        vex::task::sleep(35);
+        if (std::abs(distance_sensor.objectDistance(vex::mm) - target_distance) < distance_tolerance) {brake(); settle++;}
+        else settle = 0;
+        if (settle >= 3) break;
+    }
+    _left_dt.stop();
+    _right_dt.stop();
+    vex::task::sleep(50);
+    coast();
+}
+
 void Drivetrain::drive_to(std::vector<Waypoint> waypoints, double speed_limit){
     double start_time = bot::Brain.Timer.time(vex::msec);
     const double max_heading_correction = 1.0;

@@ -14,6 +14,11 @@
 
 using namespace vex;
 
+bool park_zone_active = false;
+static void toggle_park_zone(void) {
+  park_zone_active = !park_zone_active;
+}
+
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
@@ -98,8 +103,9 @@ void usercontrol(void) {
   bot::Controller1.ButtonA.released(bot::buttons::ButtonA_released);
   bot::Controller1.ButtonB.pressed(bot::buttons::ButtonB);
   bot::Controller1.ButtonX.pressed(bot::buttons::ButtonX);
-  bot::Controller1.ButtonY.pressed(bot::buttons::ButtonY);
-  bot::Controller1.ButtonY.released(bot::buttons::ButtonY_released);
+  bot::Controller1.ButtonY.pressed(toggle_park_zone);
+  //bot::Controller1.ButtonY.pressed(bot::buttons::ButtonY);
+  //bot::Controller1.ButtonY.released(bot::buttons::ButtonY_released);
 
   bot::Controller1.ButtonLeft.pressed(bot::buttons::ButtonLeft);
   bot::Controller1.ButtonRight.pressed(bot::buttons::ButtonRight);
@@ -110,6 +116,7 @@ void usercontrol(void) {
   double leftY, leftX, rightY, rightX;
   double left_joystick, right_joystick;
   double fwd, turn;
+  double max_speed = 100.0;
 
   while (1) {
     /*
@@ -144,11 +151,13 @@ void usercontrol(void) {
     fwd = (leftY < 0) ? -left_joystick : left_joystick;
     turn = (rightX < 0) ? -right_joystick : right_joystick;
 
-    fwd = math::clamp(fwd, -100, 100);
-    turn = math::clamp(turn, -100, 100);
+    max_speed = park_zone_active ? 50.0 : 100.0;
 
     fwd *= 1.25;
     turn *= 1.5;
+
+    fwd = math::clamp(fwd, -max_speed, max_speed);
+    turn = math::clamp(turn, -max_speed, max_speed);
 
     bot::drivetrains::dt.arcade_drive(fwd, turn);
 
