@@ -238,7 +238,7 @@ void Drivetrain::drive_dist(double target_distance, double timeout, double speed
     int settle = 0;
     double heading_error, heading_correction, current_dist, distance_error, base_speed,left_speed, right_speed;
     _heading_pid.reset();
-    PID _distance_pid(0.4, 0.0, 0.2);
+    PID _distance_pid(0.50, 0.0, 0.05);
     while (vex::timer::system() - start_time < timeout) {
         current_dist = distance_sensor.objectDistance(vex::mm);
         distance_error = target_distance - current_dist;
