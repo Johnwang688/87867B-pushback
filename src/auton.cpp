@@ -1,4 +1,5 @@
 #include "auton.hpp"
+#include <cmath>
 
 namespace bot {
 
@@ -31,7 +32,7 @@ namespace bot {
             double timer = vex::timer::system();
             while (vex::timer::system() - timer < timeout) {
                 error = bot::sensors::back_dist.objectDistance(vex::mm) - 500;
-                if (std::abs(error) < 5) break;
+                if (fabs(error) < 5) break;
                 speed = _pid.compute(error, 0.0, 0.035);
                 speed = math::clamp(speed, -40, 40);
                 dt.tank_drive(-speed, -speed);
@@ -61,7 +62,7 @@ namespace bot {
             timer = vex::timer::system();
             while (vex::timer::system() - timer < timeout) {
                 error = bot::sensors::back_dist.objectDistance(vex::mm) - 790;
-                if (std::abs(error) < 2) break;
+                if (fabs(error) < 2) break;
                 speed = _pid.compute(error, 0.0, 0.035);
                 speed = math::clamp(speed, -25, 25);
                 dt.tank_drive(-speed, -speed);
@@ -266,7 +267,7 @@ namespace bot {
             double timer = vex::timer::system();
             while (vex::timer::system() - timer < timeout) {
                 error = bot::sensors::back_dist.objectDistance(vex::mm) - 500;
-                if (std::abs(error) < 5) break;
+                if (fabs(error) < 5) break;
                 speed = _pid.compute(error, 0.0, 0.035);
                 speed = math::clamp(speed, -40, 40);
                 dt.tank_drive(-speed, -speed);
@@ -296,7 +297,7 @@ namespace bot {
             timer = vex::timer::system();
             while (vex::timer::system() - timer < timeout) {
                 error = bot::sensors::back_dist.objectDistance(vex::mm) - 200;
-                if (std::abs(error) < 2) break;
+                if (fabs(error) < 2) break;
                 speed = _pid.compute(error, 0.0, 0.035);
                 speed = math::clamp(speed, -25, 25);
                 dt.tank_drive(-speed, -speed);
@@ -780,7 +781,7 @@ namespace bot {
             dt.drive(-700, 1500, 60, 180);
             dt.turn_to_heading(-90, 500, 100);
             dt.drive(-300, 700, 50, -90);
-            dt.drive(400, 1000, 50, -90);
+            dt.drive_dist(500, 1000, 50, -90, 3.0, bot::sensors::back_dist);
             dt.brake();
             vex::task::sleep(200);
             dt.turn_to_heading(0, 500, 100);
