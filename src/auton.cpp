@@ -109,49 +109,43 @@ namespace bot {
 
         void left_4_3() {
             bot::Controller1.Screen.clearScreen();
-            bot::Controller1.Screen.setCursor(1,1);
             bot::sensors::imu.setHeading(0.0, vex::degrees);
             double start_time = bot::Brain.Timer.time(vex::msec);
-            bot::Controller1.Screen.print("start time: %.1f", start_time);
             bot::motors::lower.spin(vex::forward, 100, vex::percent);
             bot::pistons::arm_piston.set(true);
             dt.drive(650, 1500, 60, -15);
             bot::pistons::match_load_piston.set(true);
-            dt.drive(-400, 1500, 70, 60);
-            dt.drive(-900, 1200, 50, 180);
+            dt.drive(-200, 1500, 70, 60);
+            bot::pistons::match_load_piston.set(false);
+            dt.drive_dist(550, 1200, 60, 90, 5.0, bot::sensors::back_dist);
+            dt.drive(-900, 700, 50, 180);
             bot::motors::intake.spin(vex::forward, 100, vex::percent);
-            vex::task heading_adjust_task = vex::task([]() -> int {
-                dt.turn_to_heading(180, 1000, 100);
-                return 0;
-            });
-            vex::task::sleep(1500);
+            dt.drive(-500, 500, 50, 180);
+            vex::task::sleep(1000);
             bot::motors::intake.stop();
             bot::motors::lower.spin(vex::forward, 100, vex::percent);
             dt.drive(200, 800, 20, 180);
-            dt.drive(1000, 1500, 50, 180);
-            dt.match_load(1);
-            dt.drive_for(-120, 800, 50, 180);
-            dt.brake();
+            dt.drive(200, 500, 70, 180);
+            bot::pistons::match_load_piston.set(true);
             vex::task::sleep(100);
-            dt.turn_to_heading(-135, 800, 100);
+            dt.drive(1000, 800, 50, 180);
+            dt.drive(-300, 800, 50, -130);
             dt.coast();
             bot::pistons::match_load_piston.set(false);
-            dt.drive(-200, 800, 30, -135);
-            dt.drive(-750, 1200, 70, -135);
-            dt.drive_for(-200, 500, 50, -135);
+            dt.drive(-800, 1500, 100, -135);
             bot::motors::mid.spin(vex::reverse, 100, vex::percent);
-            bot::motors::lower.spin(vex::forward, 10.0, vex::volt);
-            dt.drive(-300, 500, 25, -135);
+            dt.drive_for(-200, 500, 50, -135);
             dt.brake();
             vex::task::sleep(1000);
+            dt.drive(-200, 500, 20, -135);
             bot::motors::mid.stop();
             bot::motors::lower.stop();
             dt.coast();
             dt.drive(200, 800, 30, -135);
             dt.drive(600, 1000, 60, -135);
-            dt.drive_for(330, 800, 50, -135);
-            dt.turn_to_heading(180, 800, 100);
-            dt.drive(-700, 2000, 50, 180);
+            dt.drive_for(350, 1000, 50, -135);
+            dt.turn_to_heading(180, 1000, 100);
+            dt.drive(-800, 2000, 50, 180);
             dt.hold();
             return;
             /*dt.drive(650, 1500, 100, -35);
@@ -445,6 +439,7 @@ namespace bot {
         }
 
         void sawp() {
+            bot::pistons::arm_piston.set(true);
             bot::sensors::imu.setHeading(270, vex::degrees);
             double start_time = bot::Brain.Timer.time(vex::msec);
             bot::Controller1.Screen.clearScreen();
@@ -452,27 +447,69 @@ namespace bot {
             bot::Controller1.Screen.print("start time: %.1f", start_time);
             bot::pistons::arm_piston.set(true);
             bot::motors::lower.spin(vex::forward, 100, vex::percent);
-            dt.drive(150, 500, 30, -90);
-            dt.drive(-300, 500, 80, -90);
-            dt.drive(-500, 1500, 70, -90);
-            dt.drive_dist(500, 800, 100, -90, 5.0, bot::sensors::back_dist);
-            dt.turn_to_heading(180, 500, 100);
+            dt.drive(150, 300, 35, -90);
+            dt.drive(-100, 300, 50, -90);
+            dt.drive(-200, 800, 100, -90);
+            dt.drive_dist(500, 1300, 70, -90, 5.0, bot::sensors::back_dist);
+            dt.turn_to_heading(180, 600, 100);
             bot::pistons::match_load_piston.set(true);
             vex::task::sleep(100);
-            dt.drive(500, 800, 35, 180);
-            dt.drive(-200, 700, 35, 180);
-            dt.drive(-470, 1000, 60, 180);
+            dt.drive(500, 700, 50, 180);
+            dt.drive(-100, 500, 30, 180);
+            dt.drive(-570, 700, 80, 180);
             bot::motors::intake.spin(vex::forward, 100, vex::percent);
             bot::pistons::match_load_piston.set(false);
             dt.brake();
-            vex::task::sleep(700);
-            bot::motors::right_dt.spin(vex::reverse, 50, vex::percent);
-            bot::motors::left_dt.spin(vex::forward, 50, vex::percent);
+            dt.drive(-500, 500, 50, 180);
+            vex::task::sleep(500);
+            bot::motors::intake.stop();
+            bot::motors::lower.spin(vex::forward, 100, vex::percent);
+            bot::motors::right_dt.spin(vex::reverse, 100, vex::percent);
+            bot::motors::left_dt.spin(vex::forward, 30, vex::percent);
             while (bot::sensors::imu.heading(vex::degrees) < 270) {
                 vex::task::sleep(5);
             }
-            dt.drive(200, 800, 30, -90);
             dt.coast();
+            dt.drive(200, 800, 40, -90);
+            bot::pistons::match_load_piston.set(true);
+            vex::task piston_up_task = vex::task([]() -> int {
+                vex::task::sleep(300);
+                bot::pistons::match_load_piston.set(false);
+                return 0;
+            });
+            dt.drive(400, 1000, 80, -90);
+            dt.drive(1000, 2000, 100, -90);
+            bot::pistons::match_load_piston.set(true);
+            dt.drive(-170, 700, 80, 30);
+            bot::pistons::match_load_piston.set(false);
+            dt.drive(-100, 200, 60, 90);
+            dt.drive_dist(550, 1200, 60, 90, 5.0, bot::sensors::back_dist);
+            dt.brake();
+            bot::Controller1.Screen.setCursor(2,1);
+            bot::Controller1.Screen.print("back dist: %.1f", bot::sensors::back_dist.objectDistance(vex::mm));
+            vex::task::sleep(50);
+            dt.drive(-400, 500, 50, 180);
+            bot::motors::intake.spin(vex::forward, 100, vex::percent);
+            dt.drive(-500, 500, 40, 180);
+            dt.brake();
+            vex::task::sleep(800);
+            dt.coast();
+            bot::motors::intake.stop();
+            bot::motors::lower.spin(vex::forward, 100, vex::percent);
+            dt.drive(200, 500, 30, 180);
+            dt.drive(200, 500, 70, 180);
+            bot::pistons::match_load_piston.set(true);
+            vex::task::sleep(100);
+            dt.drive(800, 600, 50, 180);
+            dt.drive(-300, 800, 70, -130);
+            bot::pistons::match_load_piston.set(false);
+            dt.drive(-900, 1500, 100, -135);
+            bot::motors::mid.spin(vex::reverse, 100, vex::percent);
+            dt.drive_for(-200, 500, 50, -135);
+            dt.brake();
+            dt.drive(50, 200, 30, -135);
+
+
             return;
             dt.drive(200, 700, 40, 180);
             dt.drive(600, 1500, 50, -45);
@@ -788,11 +825,8 @@ namespace bot {
             dt.drive(-700, 1500, 60, 180);
             dt.turn_to_heading(-90, 500, 100);
             dt.drive(-300, 700, 50, -90);
-            dt.drive_dist(490, 2000, 50, -90, 3.0, bot::sensors::back_dist);
-            dt.brake();
-            vex::task::sleep(200);
-            dt.turn_to_heading(0, 800, 100);
-            dt.drive(-300, 700, 50, 0);
+            dt.drive_dist(550, 2000, 50, -90, 3.0, bot::sensors::back_dist);
+            dt.drive(-800, 800, 50, 0);
             bot::motors::intake.spin(vex::forward, 100, vex::percent);
             dt.drive(-500, 800, 40, 0);
             dt.brake();
@@ -822,7 +856,7 @@ namespace bot {
             dt.drive(-300, 700, 30, 90);
             dt.drive(-1200, 5000, 100, 90);
             dt.drive(-500, 1500, 50, 90);
-            dt.drive_dist(490, 2000, 50, 90, 3.0, bot::sensors::back_dist);
+            dt.drive_dist(500, 2000, 50, 90, 3.0, bot::sensors::back_dist);
             dt.brake();
             vex::task::sleep(200);
             dt.turn_to_heading(0, 800, 100);
@@ -838,11 +872,8 @@ namespace bot {
             dt.drive(-700, 1500, 60, 0);
             dt.turn_to_heading(90, 500, 100);
             dt.drive(-300, 700, 50, 90);
-            dt.drive_dist(490, 2000, 50, 90, 3.0, bot::sensors::back_dist);
-            dt.brake();
-            vex::task::sleep(200);
-            dt.turn_to_heading(180, 800, 100);
-            dt.drive(-300, 700, 50, 180);
+            dt.drive_dist(550, 2000, 50, 90, 3.0, bot::sensors::back_dist);
+            dt.drive(-800, 800, 50, 180);
             bot::motors::intake.spin(vex::forward, 100, vex::percent);
             dt.drive(-500, 800, 40, 180);
             dt.brake();
@@ -873,7 +904,8 @@ namespace bot {
             dt.drive(-50, 1000, 30, 90);
             dt.brake();
             vex::task::sleep(200);
-            dt.drive(1300, 2500, 60, 90);
+            dt.drive(1200, 2000, 50, 90);
+            dt.drive_dist(1700, 3000, 100, 90, 5.0, bot::sensors::back_dist);
             dt.brake();
 
 
