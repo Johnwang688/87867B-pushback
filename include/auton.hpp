@@ -17,14 +17,14 @@ namespace bot {
     namespace autons {
         void left_7();
         void left_4_3();
-        void left_6_3();
-        void left_6();
+        void left_4_3_2();
         void right_7();
         void right_6();
         void right_4_3();
         void left_4();
         void right_4();
         void sawp();
+        void sawp_2();
         void counter_sawp();
         void skills();
         void skills_80();

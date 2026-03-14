@@ -62,20 +62,23 @@ namespace bot {
         }
         void outtake(){
             lower.spin(reverse, 100, percent);
-
+            upper.spin(reverse, 100, percent);
         }
         void stop_outtaking(){
             lower.stop();
+            upper.stop();
         }
 
         void score_middle(){
             bot::mid_scoring_status = true;
             mid.spin(reverse, 100.0, percent); 
+            upper.spin(forward, 100, percent);
         }
 
         void stop_scoring_middle(){
             bot::mid_scoring_status = false;
             mid.stop();
+            upper.stop();
         }
 
         void toggle_middle_score(){

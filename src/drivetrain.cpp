@@ -86,7 +86,7 @@ void Drivetrain::match_load(int times) {
     coast();
     for (int i = 0; i < times; i++) {
         drive(300, 300, 50, _imu.heading(vex::degrees));
-        vex::task::sleep(200);
+        vex::task::sleep(100);
     }
 }
 

@@ -22,6 +22,7 @@ namespace bot {
     namespace sensors {
         
         extern vex::inertial imu;
+        extern vex::distance front_dist;
         extern vex::distance back_dist;
 		extern vex::distance left_dist;
 		extern vex::distance right_dist;
