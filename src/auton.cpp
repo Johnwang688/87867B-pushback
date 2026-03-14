@@ -644,24 +644,24 @@ namespace bot {
             dt.drive(-300, 1000, 40, -130);
             bot::motors::upper.spin(vex::forward, 100, vex::percent);
             bot::motors::mid.spin(vex::reverse, 100, vex::percent);
-            vex::task::sleep(1750);
+            vex::task::sleep(1250);
             bot::pistons::match_load_piston.set(false);
             bot::motors::mid.stop();
             bot::motors::upper.stop();
             dt.drive(1000, 2000, 100, -130);
-            dt.turn_to_heading(270, 600, 60);
-            dt.drive_dist_front(550, 600, 100, 270, 5, bot::sensors::front_dist);
+            dt.turn_to_heading(270, 300, 60);
+            dt.drive_dist_front(420, 600, 100, 270, 5, bot::sensors::front_dist);
             dt.brake();
             dt.turn_to_heading(180, 600, 60);
             bot::pistons::match_load_piston.set(true);
             vex::task::sleep(100);
-            dt.drive(550, 800, 50, 180);
+            dt.drive(700, 100, 50, 180);
             vex::task::sleep(200);
             dt.drive(-100, 500, 30, 180);
             dt.drive(-800, 700, 80, 180);
             bot::motors::intake.spin(vex::forward, 100, vex::percent);
             bot::pistons::match_load_piston.set(false);
-            vex::task::sleep(200);
+            vex::task::sleep(3000);
             return;
         }
 
