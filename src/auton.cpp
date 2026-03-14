@@ -650,7 +650,7 @@ namespace bot {
             bot::motors::upper.stop();
             dt.drive(1000, 2000, 100, -130);
             dt.turn_to_heading(270, 600, 60);
-            dt.drive_dist(550, 600, -100, 270, 5, bot::sensors::front_dist);
+            dt.drive_dist_front(550, 600, 100, 270, 5, bot::sensors::front_dist);
             dt.brake();
             dt.turn_to_heading(180, 600, 60);
             bot::pistons::match_load_piston.set(true);

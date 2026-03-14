@@ -40,6 +40,7 @@ class Drivetrain {
         void turn_to_heading(double heading, double timeout, double speed_limit);
         void drive_arc(double radius, double angle, double timeout, double speed_limit, double lookahead);
         void drive_dist(double target_distance, double timeout, double speed_limit, double target_heading, double distance_tolerance, vex::distance& distance_sensor);
+        void drive_dist_front(double target_distance, double timeout, double speed_limit, double target_heading, double distance_tolerance, vex::distance& distance_sensor);
         void match_load(int times);
         void drive_to(std::vector<Waypoint> waypoints, double speed_limit);
     private:
