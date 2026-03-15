@@ -28,6 +28,7 @@ namespace bot {
         void counter_sawp();
         void skills();
         void skills_80();
+        void skills_100();
         void test();
         void no_auton();
     }

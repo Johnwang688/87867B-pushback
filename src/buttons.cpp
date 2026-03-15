@@ -5,6 +5,7 @@ namespace bot {
     bool mid_scoring_status = false;
     bool arm_left_requested = false;
     bool arm_right_requested = false;
+    int mid_speed = 100;
     void display_temperature() {
         double max_left_temp = 0.0, max_right_temp = 0.0;
         // list of left drivetrain motors
@@ -71,12 +72,16 @@ namespace bot {
 
         void score_middle(){
             bot::mid_scoring_status = true;
-            mid.spin(reverse, 100.0, percent); 
-            upper.spin(forward, 100, percent);
+            mid.spin(reverse, mid_speed, percent); 
+            upper.spin(forward, mid_speed, percent);
+            if (mid_speed == 60) {
+                lower.setVelocity(80, percent);
+            }
         }
 
         void stop_scoring_middle(){
             bot::mid_scoring_status = false;
+            lower.setVelocity(100, percent);
             mid.stop();
             upper.stop();
         }
@@ -87,6 +92,20 @@ namespace bot {
             } else {
                 bot::intake_methods::score_middle();
             }
+            
+        }
+
+        void change_middle_speed() {
+            if (mid_speed == 100) {
+                mid_speed = 60;
+            }
+            else {
+                mid_speed = 100;
+            }
+            bot::Controller1.Screen.clearScreen();
+            bot::Controller1.Screen.setCursor(1,1);
+            bot::Controller1.Screen.print("Middle Speed: ");
+            bot::Controller1.Screen.print(mid_speed);
         }
     }
 
@@ -140,9 +159,7 @@ namespace bot {
             bot::display_temperature();
         }
         void ButtonY(){
-            //bot::intake_methods::toggle_middle_score();
-            //bot::intake_methods::score_middle();
-            //bot::intake_methods::intake();
+            bot::intake_methods::change_middle_speed();
         }
         void ButtonY_released(){
             //bot::intake_methods::stop_scoring_middle();

@@ -53,7 +53,7 @@ void pre_auton(void) {
 
 void autonomous(void) {
   double start_time = bot::Brain.Timer.time(vex::msec);
-  bot::autons::sawp_2();
+  bot::autons::left_7();
   double end_time = bot::Brain.Timer.time(vex::msec);
   bot::Controller1.Screen.setCursor(2,1);
   bot::Controller1.Screen.print("end time: %.1f", end_time);
@@ -103,7 +103,7 @@ void usercontrol(void) {
   bot::Controller1.ButtonA.released(bot::buttons::ButtonA_released);
   bot::Controller1.ButtonB.pressed(bot::buttons::ButtonB);
   bot::Controller1.ButtonX.pressed(bot::buttons::ButtonX);
-  bot::Controller1.ButtonY.pressed(toggle_park_zone);
+  bot::Controller1.ButtonY.pressed(bot::buttons::ButtonY);
   //bot::Controller1.ButtonY.pressed(bot::buttons::ButtonY);
   //bot::Controller1.ButtonY.released(bot::buttons::ButtonY_released);
 

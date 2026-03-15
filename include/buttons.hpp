@@ -21,6 +21,7 @@ namespace bot {
         void score_middle();
         void stop_scoring_middle();
         void toggle_middle_score();
+        void change_middle_speed();
     }
     namespace buttons {
         void ButtonL1();
