@@ -23,6 +23,7 @@ namespace bot {
         void right_4_3();
         void left_4();
         void right_4();
+        void right_4_2();
         void sawp();
         void sawp_2();
         void counter_sawp();

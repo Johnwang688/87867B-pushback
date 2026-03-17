@@ -53,7 +53,7 @@ void pre_auton(void) {
 
 void autonomous(void) {
   double start_time = bot::Brain.Timer.time(vex::msec);
-  bot::autons::left_7();
+  bot::autons::sawp_2();
   double end_time = bot::Brain.Timer.time(vex::msec);
   bot::Controller1.Screen.setCursor(2,1);
   bot::Controller1.Screen.print("end time: %.1f", end_time);
