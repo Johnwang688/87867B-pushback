@@ -49,6 +49,27 @@ namespace bot {
         using namespace vex;
         void intake(){
             lower.spin(forward, 100, percent);
+            while (Controller1.ButtonR1.pressing()){
+                if (Controller1.ButtonL1.pressing()){
+                    upper.spin(forward, 100, percent);
+                    mid.spin(forward, 100, percent);
+                }
+                else if (Controller1.ButtonL2.pressing()){
+                    bot::mid_scoring_status = true;
+                mid.spin(reverse, mid_speed, percent); 
+                upper.spin(forward, mid_speed, percent);
+                if (mid_speed == 60) {
+                lower.setVelocity(80, percent);
+            }
+                }
+                else {
+                    mid.spin(forward, 5, percent);
+                    upper.spin(reverse, 5, percent);
+                }
+            }
+            if (!Controller1.ButtonL1.pressing() && !Controller1.ButtonL2.pressing()){
+                bot::motors::intake.stop();
+            }
         }
         void stop_intaking(){
             lower.stop();
